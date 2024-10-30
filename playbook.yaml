@@ -1,0 +1,27 @@
+- hosts: localhost
+  gather_facts: no
+
+tasks:
+  - name: Create application directory
+    file:
+      path: /tmp/application
+      state: directory
+      mode: 0755
+
+  - name: Get latest git version
+    git: 
+      repo: git@github.com:FannyMalinova/devops-programme.git
+      dest: /tmp/application
+      version: main
+      force: yes
+
+  - name: Install dependencies
+    pip:
+      requirements: /tmp/application/requirements.txt
+      virtualenv: /tmp/application/venv
+
+  - name: Run unit tests
+    command: cd /tmp/application/app && python -m unittest app_test.py
+    register: test_result
+    change_when: test_result.stdout.find('FAILED') == -1
+
