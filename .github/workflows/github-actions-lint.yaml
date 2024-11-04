@@ -24,4 +24,4 @@ jobs:
   unittest:
     runs-on: ubuntu-latest
     needs: Explore-GitHub-Actions
-    run: echo: "Code Unittest"
+      - run: echo "Code Unittest"
