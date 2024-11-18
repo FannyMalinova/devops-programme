@@ -1,0 +1,33 @@
+- hosts: localhost
+  gather_facts: no
+  vars: 
+    image_name: fannymalinova/python_app_from_ansible
+    image_tag: v1.0.1
+    listen_port: 5000
+  vars_files:
+  - vars/credentials.yaml
+  tasks:
+  - name: Docker login
+    docker_login:
+      username: "{{ dockerhub_credentials['username'] }}" 
+      password: "{{ dockerhub_credentials['password'] }}" 
+  - name: Build an image from Dockerfile
+    docker_image:
+      build:
+        path: ./
+      name: "{{ image_name }}"
+      tag: "{{ image_tag }}"
+      push: yes
+      source: build
+  - name: Logout from Docker Hub
+    docker_login: 
+      username: "{{ dockerhub_credentials['username'] }}" 
+      state: absent
+  - name: Run a container from this image
+    docker_container:
+      name: python_app_from_ansible_container
+      image: "{{ image_name }}:{{ image_tag }}"
+      ports: 
+      - "8080:{{ listen_port }}"
+      env:
+        PORT: "{{ listen_port | string }}"

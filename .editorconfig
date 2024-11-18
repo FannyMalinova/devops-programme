@@ -1,0 +1,8 @@
+# top-most EditorConfig file
+root = true
+
+# Set default parameters
+[*]
+charset = utf-8
+indent_style = space
+
