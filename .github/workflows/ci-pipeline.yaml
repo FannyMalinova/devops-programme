@@ -44,7 +44,7 @@ jobs:
         uses: ReasonSoftware/action-pylint@v2.0.3
         with:
           requirements_file: requirements.txt
-          filepaths: "app/"
+          filepaths: "app/*.py"
           options: "-d C0114,C0115,C0116"
 
 
