@@ -1,0 +1,12 @@
+{
+  "default": true,
+  "overrides": [
+    {
+      "files": ["**/*.md"],
+      "rules": {
+        "MD012": false,
+        "MD013": false
+      }
+    }
+  ]
+}
