@@ -120,6 +120,7 @@ jobs:
     needs: docker
     steps:
       - name: Test with Trivy
+        if: success()
         uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ vars.DOCKERHUB_USERNAME }}/flask-app:${{ github.sha }}
