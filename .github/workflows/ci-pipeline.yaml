@@ -127,6 +127,8 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+          timeout: 10m
 
 
 
