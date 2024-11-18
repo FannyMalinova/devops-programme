@@ -117,7 +117,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
 
   docker-build-trivy:
-    name: Docker build and scan
+    name: Docker build and scan with Trivy
     runs-on: ubuntu-latest
     needs: [unittest, snyk, sonar]
     steps:
@@ -145,6 +145,23 @@ jobs:
           ignore-unfixed: true
           vuln-type: "os,library"
           
+  docker-push:
+    name: Push container to Docker Hub
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
+    needs: docker-build-trivy
+    steps:
+      - name: Docker login
+        uses: docker/login-action@v3.3.0
+        with: 
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker push
+        run: docker push ${{ vars.DOCKERHUB_USERNAME }}/flask-app:${{ github.sha }}
+
+
+
 
 
   
