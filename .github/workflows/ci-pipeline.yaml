@@ -26,8 +26,6 @@ jobs:
       - uses: editorconfig-checker/action-editorconfig-checker@main
       - run: editorconfig-checker
 
-  markdown:
-    name: 
   
   python-black-pylint:
     name: Run Python Black and Pylint checks
