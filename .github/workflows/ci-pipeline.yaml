@@ -25,8 +25,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Use and run EditorConfig Checker
+      - name: Use EditorConfig Checker
         uses: editorconfig-checker/action-editorconfig-checker@main
+
+      - name: Run EditorConfig Checker 
         run: editorconfig-checker
 
       - name: Install Markdownlint CLI
