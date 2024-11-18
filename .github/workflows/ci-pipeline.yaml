@@ -26,14 +26,23 @@ jobs:
       - uses: editorconfig-checker/action-editorconfig-checker@main
       - run: editorconfig-checker
   
-  python-black:
-    name: Run Python Black Check
+  python-black-pylint:
+    name: Run Python Black and Pylint checks
     runs-on: ubuntu-latest
+    needs: scan
     steps:
-      - uses: actions/checkout@v4
-      - uses: rodrigogiraoserrao/python-black-check@v3.0
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Python Black Check
+        uses: rodrigogiraoserrao/python-black-check@v3.0
         with:
           line-length: '81'
+      
+      - name: Run PylintPylint GitHub Action
+        uses: ReasonSoftware/action-pylint@v2.0.3
+
+
 
 
 
