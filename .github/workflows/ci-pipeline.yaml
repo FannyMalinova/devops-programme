@@ -114,8 +114,21 @@ jobs:
           push: false
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flask-app:${{ github.sha }}
 
-          
-          
+  test-and-push:
+    name: Test image with Trivy and push to Docker registry
+    runs-on: ubuntu-latest
+    needs: docker
+    steps:
+      - name: Test with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ vars.DOCKERHUB_USERNAME }}/flask-app:${{ github.sha }}
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+
+
 
 
 
