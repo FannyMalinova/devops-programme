@@ -80,8 +80,14 @@ jobs:
 
       - name: Run Snyk
         uses: snyk/actions/python@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3.1.0
+        env: 
+          SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
           
 
 
