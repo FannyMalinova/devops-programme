@@ -18,7 +18,7 @@ jobs:
       - uses: gitleaks/gitleaks-action@v2.3.7
 
   editorconfig:
-    name: EditorConfig checker and Markdownlint CLI
+    name: EditorConfig checker
     runs-on: ubuntu-latest
     needs: scan
     steps:
@@ -31,14 +31,19 @@ jobs:
       - name: Run EditorConfig Checker 
         run: editorconfig-checker
 
+  markdownlintcli:
+    name: Markdownlint CLI
+    runs-on: ubuntu-latest
+    needs: scan
+    steps:
       - name: Install Markdownlint CLI
         run: npm install -g markdownlint-cli
       
       - name: Run Markdownlint  
         run: markdownlint **/*.md
 
-  python-black-pylint:
-    name: Run Python Black and Pylint checks
+  python-black:
+    name: Run Python Black
     runs-on: ubuntu-latest
     needs: scan
     steps:
@@ -49,18 +54,23 @@ jobs:
         uses: rodrigogiraoserrao/python-black-check@v3.0
         with:
           line-length: '81'
-      
-      - name: Run PylintPylint GitHub Action
+
+  python-pylint:
+    name: Run Pylint Github Action
+    runs-on: ubuntu-latest
+    needs: scan
+    steps:
+      - name: Run Pylint GitHub Action
         uses: ReasonSoftware/action-pylint@v2.0.3
         with:
           requirements_file: requirements.txt
           filepaths: "app/*.py"
           options: "-d C0114,C0115,C0116"
 
-  unittest-snyk-sonar:
-    name: Run Python unit tests, Snyk, and Sonar
+  unittest:
+    name: Run Python unit tests
     runs-on: ubuntu-latest
-    needs: [scan, editorconfig, python-black-pylint]
+    needs: [scan, editorconfig,markdownlintcli, python-black, python-pylint]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -78,12 +88,22 @@ jobs:
       - name: Run unit tests
         run: python -m unittest discover -s app -p "*.py"
 
+  snyk:
+    name: Run Snyk
+    runs-on: ubuntu-latest
+    needs: [scan, editorconfig,markdownlintcli, python-black, python-pylint]
+    steps:
       - name: Run Snyk
         uses: snyk/actions/python@master
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
+  sonar:
+    name: Run SonarCloud
+    runs-on: ubuntu-latest
+    needs: [scan, editorconfig,markdownlintcli, python-black, python-pylint]
+    steps:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v3.1.0
         with:
@@ -93,10 +113,10 @@ jobs:
         env: 
           SONAR_TOKEN: ${{ secrets.SONAR_SECRET }}
 
-  docker:
-    name: Docker build
+  docker-build-trivy:
+    name: Docker build and scan
     runs-on: ubuntu-latest
-    needs: [unittest-snyk-sonar]
+    needs: [unittest, snyk, sonar]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -113,24 +133,18 @@ jobs:
           context: .
           push: false
           tags: ${{ vars.DOCKERHUB_USERNAME }}/flask-app:${{ github.sha }}
-
-  test-and-push:
-    name: Test image with Trivy and push to Docker registry
-    runs-on: ubuntu-latest
-    needs: docker
-    steps:
-      - name: Test with Trivy
-        if: success()
+      
+      - name: Scan with Trivy
         uses: aquasecurity/trivy-action@0.28.0
-        with:
-          version: 'v0.57.1'
+        with: 
           image-ref: ${{ vars.DOCKERHUB_USERNAME }}/flask-app:${{ github.sha }}
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
           vuln-type: "os,library"
-          github-pat: ${{ secrets.GITHUB_TOKEN }}
-          timeout: 10m
+
+
+  
 
 
 
